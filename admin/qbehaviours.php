@@ -145,10 +145,11 @@ echo $OUTPUT->heading(get_string('manageqbehaviours', 'admin'));
 $table = new flexible_table('qbehaviouradmintable');
 $table->define_baseurl($thispageurl);
 $table->define_columns(array('behaviour', 'numqas', 'version', 'requires',
-        'available', 'uninstall'));
+        'available', 'settings', 'uninstall'));
 $table->define_headers(array(get_string('behaviour', 'question'), get_string('numqas', 'question'),
         get_string('version'), get_string('requires', 'admin'),
-        get_string('availableq', 'question'), get_string('uninstallplugin', 'core_admin')));
+        get_string('availableq', 'question'), get_string('settings'),
+        get_string('uninstallplugin', 'core_admin')));
 $table->set_attribute('id', 'qbehaviours');
 $table->set_attribute('class', 'generaltable admintable');
 $table->setup();
@@ -200,6 +201,17 @@ foreach ($sortedbehaviours as $behaviour => $behaviourname) {
     $icons .= question_behaviour_icon_html('up', $behaviour, 't/up', get_string('up'), null);
     $icons .= question_behaviour_icon_html('down', $behaviour, 't/down', get_string('down'), null);
     $row[] = $icons;
+
+    // Settings link, if available.
+    $settings = admin_get_root()->locate('qbehavioursetting_' . $behaviour);
+    if ($settings instanceof admin_settingpage) {
+        $row[] = html_writer::link(new moodle_url('/admin/settings.php',
+                ['section' => 'qbehavioursetting_' . $behaviour]), get_string('settings'));
+    } elseif ($settings instanceof admin_externalpage) {
+        $row[] = html_writer::link($settings->url, get_string('settings'));
+    } else {
+        $row[] = '';
+    }
 
     // Delete link, if available.
     if ($needed[$behaviour]) {
